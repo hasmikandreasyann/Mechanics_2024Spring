@@ -1,1 +1,29 @@
+Case 1: Varying Masses with Fixed Friction Coefficients
+Input Parameters:
+M1 = 5 kg, M2 = 3 kg, M3 = 2 kg
+μ1 = 0.2, μ2 = 0.3, μ3 = 0.1
+L = 10 m, dt = 0.01 s, total_time = 5 s
+Observations:
+M1 moves slower than expected due to the higher friction coefficient μ1.
+M2 exhibits oscillatory motion due to its interaction with the rope and the ground.
+M3 moves steadily towards the ground with a constant velocity.
 
+Case 2: Varying Friction Coefficients with Fixed Masses
+Input Parameters:
+M1 = 4 kg, M2 = 5 kg, M3 = 3 kg
+μ1 = 0.1, μ2 = 0.2, μ3 = 0.4
+L = 8 m, dt = 0.01 s, total_time = 5 s
+Observations:
+M1 accelerates rapidly due to the low friction coefficient μ1, reaching a significant distance from its initial position.
+M2 experiences less oscillation compared to Case 1 due to the lower friction coefficient μ2.
+M3 moves slowly towards the ground due to the higher friction coefficient μ3.
+
+Case 3: Varying Rope Lengths
+Input Parameters:
+M1 = 2 kg, M2 = 3 kg, M3 = 4 kg
+μ1 = 0.3, μ2 = 0.2, μ3 = 0.1
+L = 6 m, dt = 0.01 s, total_time = 5 s
+Observations:
+Shortening the rope (L) results in faster motion for all masses due to reduced resistance.
+M1 moves a shorter distance compared to longer rope lengths.
+M2 exhibits quicker oscillations with shorter rope lengths.
