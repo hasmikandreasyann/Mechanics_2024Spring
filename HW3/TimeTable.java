@@ -4,13 +4,21 @@ import javax.swing.*;
 
 public class TimeTable extends JFrame implements ActionListener {
 
-    private JPanel screen = new JPanel(), tools = new JPanel();
+    private JPanel screen = new JPanel() {
+        @Override
+        protected void paintComponent(Graphics g) {
+            super.paintComponent(g);
+            renderCourses(g);
+        }
+    };
+    private JPanel tools = new JPanel();
     private JButton tool[];
     private JTextField field[];
-    private CourseArray courses; // Assuming CourseArray class is defined elsewhere
+    private CourseArray courses;
     private Color CRScolor[] = {Color.RED, Color.GREEN, Color.BLACK};
-    private boolean running = false; // Flag to indicate whether the algorithm is running
-    private int min; // Declare min variable within the class scope
+    private boolean running = false;
+    private boolean canContinue = false; // Flag to indicate if the algorithm can be continued
+    private int min; 
 
     public TimeTable() {
         super("Dynamic Time Table");
@@ -24,6 +32,7 @@ public class TimeTable extends JFrame implements ActionListener {
         add(tools, BorderLayout.EAST);
 
         setVisible(true);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     }
 
     public void setTools() {
@@ -49,12 +58,19 @@ public class TimeTable extends JFrame implements ActionListener {
 
         field[0].setText("17");
         field[1].setText("381");
-        field[2].setText("lse-f-91.stu");
+        field[2].setText("rye-s-93.stu");
         field[3].setText("1");
     }
 
-    public void draw() {
-        screen.repaint();
+    public void renderCourses(Graphics g) {
+        if (courses == null) return;
+        int width = Integer.parseInt(field[0].getText()) * 10;
+        for (int courseIndex = 1; courseIndex < courses.length(); courseIndex++) {
+            g.setColor(CRScolor[courses.status(courseIndex) > 0 ? 0 : 1]);
+            g.drawLine(0, courseIndex * 2, width, courseIndex * 2); // Adjust spacing between lines
+            g.setColor(CRScolor[CRScolor.length - 1]);
+            g.drawLine(10 * courses.slot(courseIndex), courseIndex * 2, 10 * courses.slot(courseIndex) + 10, courseIndex * 2);
+        }
     }
 
     private int getButtonIndex(JButton source) {
@@ -72,7 +88,7 @@ public class TimeTable extends JFrame implements ActionListener {
                     int slots = Integer.parseInt(field[0].getText());
                     courses = new CourseArray(Integer.parseInt(field[1].getText()) + 1, slots);
                     courses.readClashes(field[2].getText());
-                    draw();
+                    screen.repaint(); // Repaint the screen
                 } catch (NumberFormatException e) {
                     JOptionPane.showMessageDialog(this, "Invalid input for slots or courses.");
                 }
@@ -82,12 +98,8 @@ public class TimeTable extends JFrame implements ActionListener {
                 startAlgorithm();
                 break;
             case 2:
-                if (running) {
-                    // Continue algorithm
-                    continueAlgorithm();
-                } else {
-                    JOptionPane.showMessageDialog(this, "Algorithm is not running.");
-                }
+                // Step
+                stepAlgorithm();
                 break;
             case 3:
                 if (courses != null) {
@@ -101,20 +113,23 @@ public class TimeTable extends JFrame implements ActionListener {
             case 4:
                 System.exit(0);
                 break;
+            case 5:
+                continueAlgorithm();
+                break;
         }
     }
 
     private void startAlgorithm() {
         if (!running) {
             running = true;
+            canContinue = true;
             min = Integer.MAX_VALUE;
             int step = 0;
             if (courses != null) {
-                for (int i = 1; i < courses.length(); i++) courses.setSlot(i, 0);
                 try {
                     for (int iteration = 1; iteration <= Integer.parseInt(field[3].getText()); iteration++) {
                         courses.iterate(Integer.parseInt(field[4].getText()));
-                        draw();
+                        screen.repaint(); // Repaint the screen
                         int clashes = courses.clashesLeft();
                         if (clashes < min) {
                             min = clashes;
@@ -134,12 +149,25 @@ public class TimeTable extends JFrame implements ActionListener {
         }
     }
 
+    private void stepAlgorithm() {
+        if (courses != null) {
+            try {
+                courses.iterate(Integer.parseInt(field[4].getText()));
+                screen.repaint(); // Repaint the screen
+                canContinue = true; // Enable continue functionality
+            } catch (NumberFormatException e) {
+                JOptionPane.showMessageDialog(this, "Invalid input for shift.");
+            }
+        } else {
+            JOptionPane.showMessageDialog(this, "Courses not loaded.");
+        }
+    }
+
     private void continueAlgorithm() {
-        try {
-            courses.iterate(Integer.parseInt(field[4].getText()));
-            draw();
-        } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(this, "Invalid input for shift.");
+        if (canContinue) {
+            startAlgorithm(); // Continue from the current state
+        } else {
+            JOptionPane.showMessageDialog(this, "Algorithm cannot be continued at this point.");
         }
     }
 
